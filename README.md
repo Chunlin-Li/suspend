@@ -6,7 +6,7 @@ Suspend is designed to work seamlessly with Node's [callback conventions](#suspe
 
 *Related reading for the generator-uninitiated: [What's the Big Deal with Generators?](http://devsmash.com/blog/whats-the-big-deal-with-generators)*
 
-**Note:** Generators are a new feature in ES6. if your node version too early to support it directly, try the `--harmony-generators` (or the more general `--harmony`) flag in V8:
+**Note:** Generators are a new feature in ES6. If your node version too early to support it directly, try the `--harmony-generators` (or the more general `--harmony`) flag in V8:
 
 ```
 $ node --harmony-generators your-script.js
@@ -37,7 +37,7 @@ suspend(function*() {
 })();
 ```
 
-~~*Working with thunks:*~~ not support thunk since v0.7.0
+~~*Working with thunks:*~~ NOT support thunk since v0.7.0
 
 
 ## Installation
@@ -59,7 +59,7 @@ $ npm install suspend
     * [suspend.resume()](#suspendresume)
     * [suspend.resumeRaw()](#suspendresumeraw)
     * [Promises](#promises)
-    * [Thunks](#thunks)
+    * [~~Thunks~~](#thunks)
 * **[Parallel Operations](#parallel-operations)**
     * [suspend.fork() and suspend.join()](#suspendfork-and-suspendjoin)
     * [Combining with Other Control-Flow Libraries](#combining-with-other-control-flow-libraries)
@@ -69,7 +69,7 @@ $ npm install suspend
 
 ### `suspend.callback(fn*)`
 
-Same as suspend.async(fn*) in previous version. 
+Same as `suspend.async(fn*)` in previous version. 
 
 Accepts a generator function `fn*`, and returns a wrapper function that follows [Node's callback conventions](http://docs.nodejitsu.com/articles/getting-started/control-flow/what-are-callbacks).  Note that the wrapper function requires a callback as the last parameter.
 
@@ -159,7 +159,7 @@ The `yield` keyword is a new language feature associated with generators in ES6.
 
 In suspend, as the name implies, we use `yield` to suspend the generator while performing asynchronous operations, and then resume it once the operation is complete.
 
-If you're using [promises](#promises) or [thunks](#thunks), suspend can resume for you automatically.  However, given that the majority of the Node ecosystem relies on callbacks, suspend provides some simple mechanisms for interacting with callback-based code: [`resume()`](#suspendresume) and [`resumeRaw()`](#suspendresumeraw).
+If you're using [promises](#promises) or [~~thunks~~](#thunks), suspend can resume for you automatically.  However, given that the majority of the Node ecosystem relies on callbacks, suspend provides some simple mechanisms for interacting with callback-based code: [`resume()`](#suspendresume) and [`resumeRaw()`](#suspendresumeraw).
 
 ---
 
@@ -335,7 +335,7 @@ Here's what's important to remember:
 
 ## Versioning and Stability
 
-Please note that generators are currently only supported in unstable (v0.11.x) versions of Node, so it would probably be wise to treat suspend as no more stable than the version of Node that supports it.  Also note that suspend follows [SemVer](http://semver.org/) for versioning, so breaking changes will never be introduced in a patch release.
+~~Please note that generators are currently only supported in unstable (v0.11.x) versions of Node, so it would probably be wise to treat suspend as no more stable than the version of Node that supports it.~~ Generator has been supported well by node v4.x and above. Also note that suspend follows [SemVer](http://semver.org/) for versioning, so breaking changes will never be introduced in a patch release.
 
 Feedback is greatly appreciated, so if you find anything or have any suggestions, please [open an issue](https://github.com/jmar777/suspend/issues?state=open), [tweet at me](https://twitter.com/jmar777), or shoot me an email (jmar777@gmail.com)!
 
