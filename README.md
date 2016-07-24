@@ -2,11 +2,11 @@
 
 [Generator](http://wiki.ecmascript.org/doku.php?id=harmony:generators)-based control-flow for Node enabling asynchronous code without callbacks, transpiling, or selling your soul.
 
-Suspend is designed to work seamlessly with Node's [callback conventions](#suspendresume), [promises](#promises), and [thunks](#thunks), but is also compatible with code that follows [other conventions](#suspendresumeraw).
+Suspend is designed to work seamlessly with Node's [callback conventions](#suspendresume) and [promises](#promises), but is also compatible with code that follows [other conventions](#suspendresumeraw).
 
 *Related reading for the generator-uninitiated: [What's the Big Deal with Generators?](http://devsmash.com/blog/whats-the-big-deal-with-generators)*
 
-**Note:** Generators are a new feature in ES6 and are still hidden behind the `--harmony-generators` (or the more general `--harmony`) flag in V8:
+**Note:** Generators are a new feature in ES6. if your node version too early to support it directly, try the `--harmony-generators` (or the more general `--harmony`) flag in V8:
 
 ```
 $ node --harmony-generators your-script.js
@@ -37,17 +37,8 @@ suspend(function*() {
 })();
 ```
 
-*Working with thunks:*
+~~*Working with thunks:*~~ not support thunk since v0.7.0
 
-```javascript
-var suspend = require('suspend'),
-    readFile = require('thunkify')(require('fs').readFile);
-
-suspend(function*() {
-    var package = JSON.parse(yield readFile('package.json', 'utf8'));
-    console.log(package.name);
-});
-```
 
 ## Installation
 
@@ -58,7 +49,7 @@ $ npm install suspend
 ## Documentation
 
 * **[API](#api)**
-    * [suspend.async(fn*)](#suspendasyncfn)
+    * [suspend.callback(fn*)](#suspendcallbackfn)
     * [suspend.promise(fn*)](#suspendpromisefn)
     * [suspend.fn(fn*)](#suspendfnfn)
     * [suspend.run(fn*)](#suspendrunfn-cb)
@@ -76,14 +67,16 @@ $ npm install suspend
 
 ## API
 
-### `suspend.async(fn*)`
+### `suspend.callback(fn*)`
+
+Same as suspend.async(fn*) in previous version. 
 
 Accepts a generator function `fn*`, and returns a wrapper function that follows [Node's callback conventions](http://docs.nodejitsu.com/articles/getting-started/control-flow/what-are-callbacks).  Note that the wrapper function requires a callback as the last parameter.
 
 **Example:**
 
 ```javascript
-var readJsonFile = suspend.async(function*(fileName) {
+var readJsonFile = suspend.callback(function*(fileName) {
     var rawFile = yield fs.readFile(fileName, 'utf8', suspend.resume());
     return JSON.parse(rawFile);
 });
@@ -94,7 +87,7 @@ readJsonFile('package.json', function(err, packageData) {
 });
 ```
 
-Note that `.async()` lets you return your final result, instead of having to explicitly accept a callback parameter and pass the result manually.  Likewise, any uncaught errors will be passed to the callback as the error argument (see the section on [error handling](#error-handling) for more information).
+Note that `.callback()` lets you return your final result, instead of having to explicitly accept a callback parameter and pass the result manually.  Likewise, any uncaught errors will be passed to the callback as the error argument (see the section on [error handling](#error-handling) for more information).
 
 ---
 
@@ -120,7 +113,7 @@ Note that the above example also demonstrates the ability to yield promises, whi
 
 ### `suspend.fn(fn*)`
 
-Accepts a generator function `fn*`, and returns a wrapper function that, unlike `.async()`, makes no assumptions regarding callback conventions.  This makes `.fn()` useful for event handlers, `setTimeout()` functions, and other use cases that don't expect Node's typical asynchronous method signature.
+Accepts a generator function `fn*`, and returns a wrapper function that, unlike `.callback()`, makes no assumptions regarding callback conventions.  This makes `.fn()` useful for event handlers, `setTimeout()` functions, and other use cases that don't expect Node's typical asynchronous method signature.
 
 **Note:** As a shorthand convenience, `suspend(fn*)` is an alias for `suspend.fn(fn*)`.
 
@@ -219,11 +212,11 @@ The above is an example of working with [mongoose](http://mongoosejs.com/), whic
 
 ---
 
-### Thunks
+### ~~Thunks~~ (no longer support)
 
-Thunks provide a nice, lightweight alternative to promises when working with generators.  Sometimes referred to as continuables, thunks are simply functions returned from asynchronous operations, that accept a single node-style callback parameter.  For creating "thunkified" versions of asynchronous functions, I recommend TJ Holowaychuk's [thunkify](https://github.com/visionmedia/node-thunkify) module.
+~~Thunks provide a nice, lightweight alternative to promises when working with generators.  Sometimes referred to as continuables, thunks are simply functions returned from asynchronous operations, that accept a single node-style callback parameter.  For creating "thunkified" versions of asynchronous functions, I recommend TJ Holowaychuk's [thunkify](https://github.com/visionmedia/node-thunkify) module.~~
 
-**Example:**
+**~~Example:~~**
 
 ```javascript
 var readFile = thunkify(fs.readFile);
@@ -233,7 +226,7 @@ suspend(function*() {
 });
 ```
 
-As can be seen, one must simply yield the thunk itself and suspend will appropriately handle the eventual result or error.  Just like with promises, thunks and suspend make a particularly nice combination, as once again there's no need to pass in `resume()` or other callback mechanism into the async function itself.
+~~As can be seen, one must simply yield the thunk itself and suspend will appropriately handle the eventual result or error.  Just like with promises, thunks and suspend make a particularly nice combination, as once again there's no need to pass in `resume()` or other callback mechanism into the async function itself.~~
 
 ## Parallel Operations
 
@@ -300,7 +293,7 @@ suspend.run(function*() {
 });
 ```
 
-While unifying the error handling model is convenient, it can also be tedious to write lots of `try/catches`.  For this reason, both `.run()` and `.async()` will automatically pass any unhandled errors to their callbacks.  This makes it trivial to write functions using suspend that safely handle errors in accordance with Node's callback conventions:
+While unifying the error handling model is convenient, it can also be tedious to write lots of `try/catches`.  For this reason, both `.run()` and `.callback()` will automatically pass any unhandled errors to their callbacks.  This makes it trivial to write functions using suspend that safely handle errors in accordance with Node's callback conventions:
 
 **Example (`.run()`):**
 
@@ -316,7 +309,7 @@ suspend.run(function*() {
 });
 ```
 
-**Example (`.async()`):**
+**Example (`.callback()`):**
 
 ```javascript
 var readJsonFile = suspend.async(function*(fileName) {
@@ -336,7 +329,7 @@ readJsonFile('package.json', function(err, packageData) {
 Here's what's important to remember:
 
 1. If an error occurs, you'll have a chance to capture it with a `try/catch`.
-2. If you don't catch an error, *and* you're using `suspend()`, `.async()` or `.run()` with a callback, then the error will be passed to the callback.
+2. If you don't catch an error, *and* you're using `suspend()`, `.callback()` or `.run()` with a callback, then the error will be passed to the callback.
 3. Otherwise, the unhandled error will be re-thrown globally.
 
 
